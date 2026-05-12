@@ -1,0 +1,1 @@
+import { View, Text } from 'react-native'; export default function Reaction() { return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Reaction</Text></View>; }
