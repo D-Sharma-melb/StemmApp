@@ -1,19 +1,38 @@
-import React, { useState } from 'react';
-import { TextInput, StyleSheet, View, TextInputProps } from 'react-native';
-import { COLORS } from '../../styles/colors';
-import { TYPOGRAPHY } from '../../styles/typography';
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  TextInput,
+  TextInputProps,
+  View,
+} from "react-native";
+
+import { COLORS } from "../../styles/colors";
+import { TYPOGRAPHY } from "../../styles/typography";
 
 export const AppInput: React.FC<TextInputProps> = (props) => {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <View style={[styles.container, isFocused && styles.focused]}>
-      <TextInput 
-        style={styles.input} 
+    <View
+      style={[
+        styles.container,
+        isFocused && styles.containerFocused,
+      ]}
+    >
+      <TextInput
+        {...props}
+        style={styles.input}
         placeholderTextColor="#9E9E9E"
-        onFocus={(e) => { setIsFocused(true); props.onFocus?.(e); }}
-        onBlur={(e) => { setIsFocused(false); props.onBlur?.(e); }}
-        {...props} 
+        autoCorrect={false}
+        autoCapitalize="none"
+        onFocus={(e) => {
+          setIsFocused(true);
+          props.onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setIsFocused(false);
+          props.onBlur?.(e);
+        }}
       />
     </View>
   );
@@ -21,24 +40,23 @@ export const AppInput: React.FC<TextInputProps> = (props) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F7F7F7',
+    backgroundColor: "#F7F7F7",
     borderRadius: 14,
-    height: 52,
+    minHeight: 52,
     paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: 'transparent',
-    justifyContent: 'center',
+    borderColor: "#EAEAEA",
+    justifyContent: "center",
   },
-  focused: {
+
+  containerFocused: {
     borderColor: COLORS.primary,
-    shadowColor: COLORS.primary,
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 2,
   },
+
   input: {
-    flex: 1,
-    ...TYPOGRAPHY.body,
-  }
+    fontSize: 16,
+    color: "#3E3E3E",
+    paddingVertical: 12,
+      
+  },
 });
