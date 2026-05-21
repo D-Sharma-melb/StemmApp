@@ -1,98 +1,163 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { AppButton } from "../components/AppButton";
+import { ResultCard } from "../components/ResultCard";
+import { ScoreDisplay } from "../components/ScoreDisplay";
+import { ScreenContainer } from "../components/ScreenContainer";
+import { useReactionTimer } from "../hooks/useReactionTimer";
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+export default function ReactionChallengeScreen() {
+  const {
+    status,
+    reactionTime,
+    bestScore,
+    average,
+    attempts,
+    startChallenge,
+    handlePress,
+    resetScores,
+  } = useReactionTimer();
+
+  const message =
+    status === "waiting"
+      ? "WAIT..."
+      : status === "ready"
+        ? "TAP NOW!"
+        : status === "early"
+          ? "Too Early!"
+          : status === "finished"
+            ? "Completed!"
+            : "Press Start";
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <ScreenContainer>
+      <Text style={styles.title}>Reaction Challenge</Text>
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+      <Text style={styles.subtitle}>
+        Tap as soon as the signal appears and test your reaction speed.
+      </Text>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+      <TouchableOpacity
+        style={[
+          styles.challengeBox,
+          status === "ready" && styles.readyBox,
+          status === "early" && styles.earlyBox,
+          status === "waiting" && styles.waitingBox,
+        ]}
+        onPress={handlePress}
+        activeOpacity={0.9}
+      >
+        <Text style={styles.challengeText}>{message}</Text>
+      </TouchableOpacity>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+      <View style={styles.scoreRow}>
+        <ScoreDisplay
+          score={`Current: ${reactionTime === null ? "--" : reactionTime + " ms"}`}
+        />
+        <ScoreDisplay
+          score={`Best: ${bestScore === null ? "--" : bestScore + " ms"}`}
+        />
+      </View>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+      <View style={styles.scoreRow}>
+        <ScoreDisplay
+          score={`Average: ${average === null ? "--" : average + " ms"}`}
+        />
+        <ScoreDisplay score={`Attempts: ${attempts.length}`} />
+      </View>
+
+      {reactionTime !== null && (
+        <ResultCard
+          score={`${reactionTime} ms`}
+          summary="Your reaction time has been recorded. Try again to improve your speed."
+        />
+      )}
+
+      <AppButton
+        title={status === "idle" ? "Start Challenge" : "Retry Challenge"}
+        onPress={startChallenge}
+        style={styles.buttonSpacing}
+      />
+
+      <AppButton
+        title="Reset Scores"
+        onPress={resetScores}
+        variant="secondary"
+        style={styles.buttonSpacing}
+      />
+
+      <View style={styles.infoBox}>
+        <Text style={styles.infoTitle}>STEMM Learning Link</Text>
+        <Text style={styles.infoText}>
+          This activity helps students understand coordination, brain response,
+          reaction time, averages, and performance improvement through repeated
+          attempts.
+        </Text>
+      </View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
   title: {
-    textAlign: 'center',
+    fontSize: 34,
+    fontWeight: "800",
+    marginTop: 20,
+    textAlign: "center",
   },
-  code: {
-    textTransform: 'uppercase',
+  subtitle: {
+    fontSize: 16,
+    color: "#6B7280",
+    textAlign: "center",
+    marginTop: 8,
+    marginBottom: 24,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  challengeBox: {
+    height: 220,
+    borderRadius: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#4F46E5",
+  },
+  readyBox: {
+    backgroundColor: "#16A34A",
+  },
+  earlyBox: {
+    backgroundColor: "#DC2626",
+  },
+  waitingBox: {
+    backgroundColor: "#F59E0B",
+  },
+  challengeText: {
+    color: "white",
+    fontSize: 38,
+    fontWeight: "900",
+  },
+  scoreRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+    marginTop: 14,
+  },
+  buttonSpacing: {
+    marginTop: 14,
+  },
+  infoBox: {
+    marginTop: 22,
+    backgroundColor: "#EAF2FF",
+    borderRadius: 18,
+    padding: 16,
+  },
+  infoTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#4F46E5",
+    marginBottom: 6,
+  },
+  infoText: {
+    fontSize: 14,
+    color: "#111827",
+    lineHeight: 20,
   },
 });
