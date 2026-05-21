@@ -1,6 +1,8 @@
 import { router } from "expo-router";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -8,7 +10,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  TextInput,
 } from "react-native";
 import { AppButton, AppInput, ScreenContainer } from "../../components/shared";
 import { COLORS } from "../../styles/colors";
@@ -16,12 +17,22 @@ import { TYPOGRAPHY } from "../../styles/typography";
 
 export default function LoginScreen() {
   const [teamName, setTeamName] = useState("");
-  const [id, setId] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    // Navigate to tabs
-    router.replace("/(tabs)");
+    const auth = getAuth();
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        router.replace("/(tabs)");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        Alert.alert("Login Error", errorMessage);
+      });
   };
 
   return (
@@ -49,7 +60,13 @@ export default function LoginScreen() {
               onChangeText={setTeamName}
             />
             <View style={{ height: 16 }} />
-            <AppInput placeholder="ID" value={id} onChangeText={setId} />
+            <AppInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
             <View style={{ height: 16 }} />
             <AppInput
               placeholder="Password"
