@@ -77,7 +77,9 @@ export async function getUserRecentAttempts(
       return Number.isNaN(parsed) ? 0 : parsed;
     };
 
-    attempts.sort((a, b) => getCreatedAtMs(b.createdAt) - getCreatedAtMs(a.createdAt));
+    attempts.sort(
+      (a, b) => getCreatedAtMs(b.createdAt) - getCreatedAtMs(a.createdAt),
+    );
     return attempts.slice(0, numAttempts);
   } catch (error) {
     console.error("Error fetching user attempts:", error);

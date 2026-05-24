@@ -1,8 +1,8 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { CardContainer } from "../shared/CardContainer";
 import { COLORS } from "../../styles/colors";
 import { TYPOGRAPHY } from "../../styles/typography";
+import { CardContainer } from "../shared/CardContainer";
 
 type FirestoreTimestampLike = {
   toDate?: () => Date;
@@ -29,7 +29,9 @@ function formatDate(value: AttemptItem["createdAt"]) {
 
   if (typeof value === "string" || typeof value === "number") {
     const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? "Unknown date" : parsed.toLocaleString();
+    return Number.isNaN(parsed.getTime())
+      ? "Unknown date"
+      : parsed.toLocaleString();
   }
 
   if (typeof value === "object") {
@@ -48,7 +50,9 @@ export function AttemptItemCard({ attempt }: AttemptItemCardProps) {
   return (
     <CardContainer style={styles.card}>
       <View style={styles.topRow}>
-        <Text style={styles.activity}>{attempt.activityId || "Unknown Activity"}</Text>
+        <Text style={styles.activity}>
+          {attempt.activityId || "Unknown Activity"}
+        </Text>
         <Text style={styles.score}>Score: {attempt.score ?? 0}</Text>
       </View>
       <Text style={styles.date}>Created: {formatDate(attempt.createdAt)}</Text>
