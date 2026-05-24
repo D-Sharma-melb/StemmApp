@@ -1,8 +1,4 @@
-import {
-  doc,
-  setDoc,
-  Timestamp,
-} from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 
 import { db } from "../../config/firebase";
 
@@ -14,34 +10,42 @@ export async function createUserProfile({
   email,
   teamId,
 }: any) {
-
   try {
+    await setDoc(doc(db, "users", uid), {
+      uid,
 
-    await setDoc(
-      doc(db, "users", uid),
-      {
-        uid,
+      firstName,
 
-        firstName,
+      lastName,
 
-        lastName,
+      className,
 
-        className,
+      email,
 
-        email,
+      teamId,
 
-        teamId,
+      role: "student",
 
-        role: "student",
-
-        createdAt: Timestamp.now(),
-      }
-    );
-
+      createdAt: Timestamp.now(),
+    });
   } catch (error) {
-
     console.log(error);
 
+    throw error;
+  }
+}
+
+export async function getUserProfile(uid: string) {
+  try {
+    const userDoc = await getDoc(doc(db, "users", uid));
+    if (userDoc.exists()) {
+      return userDoc.data();
+    } else {
+      console.log("No such document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting document:", error);
     throw error;
   }
 }

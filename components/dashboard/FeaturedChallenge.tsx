@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { COLORS } from "../../styles/colors";
@@ -9,11 +10,11 @@ export function FeaturedChallenge() {
     <View style={styles.section}>
       <Text style={TYPOGRAPHY.sectionTitle}>Featured Challenge</Text>
       <ActivityCard
-        title="Design a Parachute"
-        description="Use basic materials to create a parachute that can safely land a small object."
+        title="Earthquake "
+        description="Use accelerometer to measure vibrations and simulate an earthquake."
         iconName="flask-outline"
         accentColor={COLORS.primary}
-        onStart={() => {}}
+        onStart={() => router.push("/(tabs)/activities/earthquake")}
       />
     </View>
   );
