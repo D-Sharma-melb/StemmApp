@@ -15,38 +15,87 @@ export function TracingChallenge({ onComplete }: TracingChallengeProps) {
   const [startTime, setStartTime] = useState<number>(0);
   const [progress, setProgress] = useState(0);
 
-  const pan = Gesture.Pan()
-    .onStart(() => {
-      if (gameState === "idle") {
-        setGameState("tracing");
-        setStartTime(Date.now());
-        setProgress(0);
-      }
-    })
-    .onUpdate((e) => {
-      if (gameState === "tracing") {
-        // Simple progress based on X coordinate moving right
-        // The track is roughly 250px wide
-        const currentProgress = Math.max(0, Math.min(100, (e.x / 250) * 100));
-        setProgress(currentProgress);
+ const pan = Gesture.Pan()
+  .runOnJS(true)
 
-        if (currentProgress >= 95) {
-          // Finished tracing
-          setGameState("done");
-        }
+  .onStart(() => {
+
+    if (gameState === "idle") {
+
+      setGameState("tracing");
+
+      setStartTime(Date.now());
+
+      setProgress(0);
+    }
+  })
+
+  .onUpdate((e) => {
+
+    if (gameState === "tracing") {
+
+      // Get drag movement safely
+      const rawX =
+        typeof e.translationX === "number"
+          ? e.translationX
+          : typeof e.x === "number"
+          ? e.x
+          : 0;
+
+      // Convert to percentage
+      const currentProgress =
+        Math.max(
+          0,
+          Math.min(
+            100,
+            (rawX / 250) * 100
+          )
+        );
+
+      setProgress(currentProgress);
+
+      // Finish tracing
+      if (currentProgress >= 95) {
+
+        setGameState("done");
       }
-    })
-    .onEnd(() => {
-      if (gameState === "done") {
-        const timeTaken = Date.now() - startTime;
+    }
+  })
+
+  .onEnd(() => {
+
+    if (gameState === "done") {
+
+      const timeTaken =
+        Date.now() - startTime;
+
+      try {
+
         onComplete(timeTaken);
-        setGameState("idle");
-      } else if (gameState === "tracing") {
-        // Let go too early
-        setGameState("idle");
-        setProgress(0);
+
+      } catch (err) {
+
+        console.error(
+          "Error in onComplete:",
+          err
+        );
       }
-    });
+
+      // Reset state
+      setGameState("idle");
+
+      setProgress(0);
+
+    } else if (
+      gameState === "tracing"
+    ) {
+
+      // Released too early
+      setGameState("idle");
+
+      setProgress(0);
+    }
+  });
 
   return (
     <View style={styles.container}>

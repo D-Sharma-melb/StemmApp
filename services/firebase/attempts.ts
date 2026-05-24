@@ -20,21 +20,34 @@ export async function saveAttempt({
   location,
 }: any) {
   try {
-    const docRef = await addDoc(collection(db, "attempts"), {
+    // sanitize payload: Firestore rejects `undefined` fields
+    const sanitize = (obj: any) => {
+      if (!obj || typeof obj !== "object") return obj ?? null;
+      const out: any = {};
+      Object.keys(obj).forEach((k) => {
+        if (typeof obj[k] !== "undefined") out[k] = obj[k];
+      });
+      return out;
+    };
+
+    // Build top-level data and remove any undefined fields (Firestore forbids undefined)
+    const topLevel: any = {
       activityId,
-
       userId,
-
       teamId,
-
       score,
-
-      metadata,
-
-      location,
-
+      metadata: sanitize(metadata),
       createdAt: Timestamp.now(),
+      location,
+    };
+
+    const data: any = {};
+    Object.keys(topLevel).forEach((k) => {
+      if (typeof topLevel[k] !== "undefined") data[k] = topLevel[k];
     });
+
+    console.log("Saving attempt data:", JSON.stringify(data));
+    const docRef = await addDoc(collection(db, "attempts"), data);
 
     return docRef.id;
   } catch (error) {
