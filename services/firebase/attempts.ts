@@ -2,8 +2,6 @@ import {
   addDoc,
   collection,
   getDocs,
-  limit,
-  orderBy,
   query,
   Timestamp,
   where,
@@ -62,18 +60,25 @@ export async function getUserRecentAttempts(
   numAttempts: number = 3,
 ) {
   try {
-    const q = query(
-      collection(db, "attempts"),
-      where("userId", "==", userId),
-      orderBy("createdAt", "desc"),
-      limit(numAttempts),
-    );
+    // Avoid composite-index requirement by querying only by userId,
+    // then sorting and slicing client-side.
+    const q = query(collection(db, "attempts"), where("userId", "==", userId));
     const querySnapshot = await getDocs(q);
     const attempts: any[] = [];
     querySnapshot.forEach((doc) => {
       attempts.push({ id: doc.id, ...doc.data() });
     });
-    return attempts;
+
+    const getCreatedAtMs = (value: any) => {
+      if (!value) return 0;
+      if (typeof value.toDate === "function") return value.toDate().getTime();
+      if (typeof value.seconds === "number") return value.seconds * 1000;
+      const parsed = new Date(value).getTime();
+      return Number.isNaN(parsed) ? 0 : parsed;
+    };
+
+    attempts.sort((a, b) => getCreatedAtMs(b.createdAt) - getCreatedAtMs(a.createdAt));
+    return attempts.slice(0, numAttempts);
   } catch (error) {
     console.error("Error fetching user attempts:", error);
     throw error;
