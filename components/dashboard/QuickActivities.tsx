@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { TYPOGRAPHY } from "../../styles/typography";
@@ -10,11 +11,20 @@ export function QuickActivities() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={styles.quickActivityWrapper}>
           <ActivityCard
+            title="Earthquake Simulation"
+            description="Measure vibration."
+            iconName="pulse-outline"
+            accentColor="#BA68C8"
+            onStart={() => router.push("/(tabs)/activities/earthquake")}
+          />
+        </View>
+        <View style={styles.quickActivityWrapper}>
+          <ActivityCard
             title="Reaction Test"
             description="Test your reaction time."
             iconName="timer-outline"
             accentColor="#4DB6AC"
-            onStart={() => {}}
+            onStart={() => router.push("/(tabs)/activities/reaction")}
           />
         </View>
         <View style={styles.quickActivityWrapper}>
@@ -23,7 +33,16 @@ export function QuickActivities() {
             description="Measure decibels."
             iconName="mic-outline"
             accentColor="#FF8A65"
-            onStart={() => {}}
+            onStart={() => router.push("/(tabs)/activities/sound")}
+          />
+        </View>
+        <View style={styles.quickActivityWrapper}>
+          <ActivityCard
+            title="Breathing Exercise"
+            description="Practice deep breathing."
+            iconName="heart-outline"
+            accentColor="#81C784"
+            onStart={() => router.push("/(tabs)/activities/breathing")}
           />
         </View>
       </ScrollView>

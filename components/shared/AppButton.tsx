@@ -9,6 +9,7 @@ interface AppButtonProps {
   onPress: () => void;
   variant?: "primary" | "secondary";
   style?: any;
+  disabled?: boolean;
 }
 
 export const AppButton: React.FC<AppButtonProps> = ({
@@ -16,6 +17,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
   onPress,
   variant = "primary",
   style,
+  disabled = false,
 }) => {
   const isPrimary = variant === "primary";
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -35,11 +37,16 @@ export const AppButton: React.FC<AppButtonProps> = ({
       style={[{ transform: [{ scale: scaleAnim }], width: "100%" }, style]}
     >
       <TouchableOpacity
-        style={[styles.button, isPrimary ? styles.primary : styles.secondary]}
+        style={[
+          styles.button,
+          isPrimary ? styles.primary : styles.secondary,
+          disabled && { opacity: 0.5 },
+        ]}
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         activeOpacity={0.8}
+        disabled={disabled}
       >
         <Text
           style={[
