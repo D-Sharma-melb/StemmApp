@@ -85,24 +85,32 @@ export default function SoundActivity() {
         await stopMetering();
       }
 
-      await saveAttempt({
+      const payload: any = {
         activityId: "sound_pollution",
         userId: user.uid,
-        teamId: null, // Depending on if we have team context
-        score: actions.length, // Let's use number of actions recorded as a basic score
+        score: actions.length, // number of actions recorded as a basic score
         metadata: {
           records: actions,
         },
-      });
+      };
 
-      router.push({
-        pathname: "/(tabs)/activities/results",
-        params: {
-          score: actions.length.toString(),
-          metric: "records",
-          activityType: "Sound Pollution Hunter",
-        },
-      });
+      console.log("Attempt payload:", JSON.stringify(payload));
+
+      await saveAttempt(payload);
+
+      try {
+        await router.push({
+          pathname: "/(tabs)/activities/results",
+          params: {
+            score: actions.length.toString(),
+            metric: "records",
+            activityType: "Sound Pollution Hunter",
+          },
+        });
+      } catch (navErr) {
+        console.error("Navigation error:", navErr);
+        Alert.alert("Navigation Error", "Unable to open results screen.");
+      }
     } catch (error) {
       Alert.alert("Error", "Failed to save activity data");
       console.error(error);
