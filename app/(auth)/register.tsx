@@ -1,62 +1,128 @@
 import { router } from "expo-router";
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+
 import React, { useState } from "react";
+
 import {
   Alert,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-import { AppButton, AppInput, ScreenContainer } from "../../components/shared";
+
+import {
+  AppButton,
+  AppInput,
+  ScreenContainer,
+} from "../../components/shared";
+
+import { registerUser }
+from "../../services/firebase/auth";
+
 import { COLORS } from "../../styles/colors";
-import { TYPOGRAPHY } from "../../styles/typography";
+
+import { TYPOGRAPHY }
+from "../../styles/typography";
 
 export default function RegisterScreen() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [className, setClassName] = useState("");
-  const [teamName, setTeamName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleRegister = () => {
-    const auth = getAuth();
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed up
-        const user = userCredential.user;
-        router.back();
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        Alert.alert("Registration Error", errorMessage);
+  const [firstName, setFirstName] =
+    useState("");
+
+  const [lastName, setLastName] =
+    useState("");
+
+  const [className, setClassName] =
+    useState("");
+
+  const [teamName, setTeamName] =
+    useState("");
+
+  const [email, setEmail] =
+    useState("");
+
+  const [password, setPassword] =
+    useState("");
+
+  const handleRegister = async () => {
+
+    try {
+
+      if (
+        !firstName ||
+        !lastName ||
+        !className ||
+        !teamName ||
+        !email ||
+        !password
+      ) {
+        Alert.alert(
+          "Error",
+          "Please fill all fields"
+        );
+
+        return;
+      }
+
+      await registerUser({
+        firstName,
+
+        lastName,
+
+        className,
+
+        teamName,
+
+        email,
+
+        password,
       });
+
+      Alert.alert(
+        "Success",
+        "Account created successfully"
+      );
+
+      router.replace("/(tabs)");
+
+    } catch (error: any) {
+
+      Alert.alert(
+        "Registration Error",
+        error.message
+      );
+    }
   };
 
   return (
     <ScreenContainer>
-      {/* <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      > */}
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={
+          styles.scrollContent
+        }
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="always"
-        keyboardDismissMode="none"
       >
+
         <View style={styles.header}>
-          <Text style={TYPOGRAPHY.screenTitle}>Create Account</Text>
-          <Text style={[TYPOGRAPHY.body, styles.subtitle]}>
+          <Text style={TYPOGRAPHY.screenTitle}>
+            Create Account
+          </Text>
+
+          <Text
+            style={[
+              TYPOGRAPHY.body,
+              styles.subtitle,
+            ]}
+          >
             Join the STEMM community
           </Text>
         </View>
 
         <View style={styles.form}>
+
           <View style={styles.row}>
+
             <View style={styles.flexItem}>
               <AppInput
                 placeholder="First Name"
@@ -64,7 +130,9 @@ export default function RegisterScreen() {
                 onChangeText={setFirstName}
               />
             </View>
+
             <View style={{ width: 16 }} />
+
             <View style={styles.flexItem}>
               <AppInput
                 placeholder="Last Name"
@@ -72,7 +140,9 @@ export default function RegisterScreen() {
                 onChangeText={setLastName}
               />
             </View>
+
           </View>
+
           <View style={{ height: 16 }} />
 
           <AppInput
@@ -80,6 +150,7 @@ export default function RegisterScreen() {
             value={className}
             onChangeText={setClassName}
           />
+
           <View style={{ height: 16 }} />
 
           <AppInput
@@ -87,6 +158,7 @@ export default function RegisterScreen() {
             value={teamName}
             onChangeText={setTeamName}
           />
+
           <View style={{ height: 16 }} />
 
           <AppInput
@@ -96,6 +168,7 @@ export default function RegisterScreen() {
             autoCapitalize="none"
             keyboardType="email-address"
           />
+
           <View style={{ height: 16 }} />
 
           <AppInput
@@ -106,60 +179,82 @@ export default function RegisterScreen() {
           />
 
           <View style={styles.buttonContainer}>
-            <AppButton title="Register" onPress={handleRegister} />
+            <AppButton
+              title="Register"
+              onPress={handleRegister}
+            />
           </View>
+
         </View>
 
         <View style={styles.footer}>
-          <Text style={TYPOGRAPHY.subText}>Already have an account? </Text>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.linkText}>Login</Text>
+
+          <Text style={TYPOGRAPHY.subText}>
+            Already have an account?
+          </Text>
+
+          <TouchableOpacity
+            onPress={() => router.back()}
+          >
+            <Text style={styles.linkText}>
+              Login
+            </Text>
           </TouchableOpacity>
+
         </View>
+
       </ScrollView>
-      {/* </KeyboardAvoidingView> */}
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",
     paddingVertical: 32,
   },
+
   header: {
     marginBottom: 32,
   },
+
   subtitle: {
     color: "#757575",
     marginTop: 8,
   },
+
   form: {
     marginBottom: 32,
   },
+
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
+
   flexItem: {
     flex: 1,
   },
+
   buttonContainer: {
     marginTop: 24,
   },
+
   footer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     marginTop: "auto",
   },
+
   linkText: {
     ...TYPOGRAPHY.subText,
+
     color: COLORS.primary,
-    fontFamily: "Poppins_600SemiBold",
+
+    fontFamily:
+      "Poppins_600SemiBold",
   },
 });
