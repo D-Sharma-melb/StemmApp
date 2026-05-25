@@ -38,6 +38,14 @@ const activities = [
     accentColor: "#4CAF50",
     route: "/(tabs)/activities/earthquake",
   },
+    {
+    id: "parachut",
+    title: "Parachute Challenge",
+    description: "Start the parachute challenge and see how slow you can make the toy fall!",
+    iconName: "umbrella-outline" as const,
+    accentColor: "#000f92",
+    route: "/(tabs)/activities/parachut",
+  },
   {
     id: "results",
     title: "Results",
@@ -46,6 +54,7 @@ const activities = [
     accentColor: "#9C27B0",
     route: "/(tabs)/activities/results",
   },
+  
 ];
 
 export default function ActivitiesScreen() {
