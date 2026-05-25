@@ -8,6 +8,7 @@ export default function ActivitiesLayout() {
       <Stack.Screen name='sound' />
       <Stack.Screen name='earthquake' />
       <Stack.Screen name='breathing' />
+      <Stack.Screen name='parachut' />
       <Stack.Screen name='results' />
     </Stack>
   );

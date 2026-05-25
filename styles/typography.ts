@@ -9,9 +9,19 @@ export const TYPOGRAPHY = {
     fontSize: 20,
     color: "#3E3E3E",
   },
+  subtitle: {
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 18,
+    color: "#3E3E3E",
+  },
   cardTitle: {
     fontFamily: "Poppins_500Medium",
     fontSize: 18,
+    color: "#3E3E3E",
+  },
+  label: {
+    fontFamily: "Poppins_500Medium",
+    fontSize: 14,
     color: "#3E3E3E",
   },
   body: {
@@ -33,5 +43,5 @@ export const TYPOGRAPHY = {
     fontFamily: "Poppins_700Bold",
     fontSize: 40,
     color: "#FF8A65",
-  }
+  },
 };
