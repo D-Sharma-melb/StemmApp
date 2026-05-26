@@ -1,98 +1,173 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { AppButton } from "../components/AppButton";
+import { ResultCard } from "../components/ResultCard";
+import { ScoreDisplay } from "../components/ScoreDisplay";
+import { ScreenContainer } from "../components/ScreenContainer";
+import { useSoundMeter } from "../hooks/useSoundMeter";
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+export default function SoundPollutionHunterScreen() {
+  const {
+    status,
+    soundLevel,
+    readings,
+    average,
+    max,
+    soundCategory,
+    startMeter,
+    stopMeter,
+    resetReadings,
+  } = useSoundMeter();
+
+  const meterWidth =
+    soundLevel === null ? "0%" : `${Math.min(soundLevel, 100)}%`;
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <ScreenContainer>
+      <Text style={styles.title}>Sound Pollution Hunter</Text>
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+      <Text style={styles.subtitle}>
+        Use the microphone to detect sound intensity and identify quiet,
+        moderate, and loud environments.
+      </Text>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+      <View style={styles.meterCard}>
+        <Text style={styles.label}>Live Sound Level</Text>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+        <Text style={styles.dbText}>
+          {soundLevel === null ? "--" : soundLevel} dB
+        </Text>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+        <View style={styles.meterBackground}>
+          <View style={[styles.meterFill, { width: meterWidth }]} />
+        </View>
+
+        <Text style={styles.category}>{soundCategory}</Text>
+      </View>
+
+      <View style={styles.scoreRow}>
+        <ScoreDisplay
+          score={`Average: ${average === null ? "--" : average + " dB"}`}
+        />
+        <ScoreDisplay score={`Max: ${max === null ? "--" : max + " dB"}`} />
+      </View>
+
+      <View style={styles.scoreRow}>
+        <ScoreDisplay score={`Readings: ${readings.length}`} />
+        <ScoreDisplay score={`Status: ${status}`} />
+      </View>
+
+      {status !== "listening" ? (
+        <AppButton
+          title="Start Listening"
+          onPress={startMeter}
+          style={styles.button}
+        />
+      ) : (
+        <AppButton
+          title="Stop Listening"
+          onPress={stopMeter}
+          style={styles.button}
+        />
+      )}
+
+      <AppButton
+        title="Reset Readings"
+        onPress={resetReadings}
+        variant="secondary"
+        style={styles.button}
+      />
+
+      {soundLevel !== null && (
+        <ResultCard
+          score={`${soundLevel} dB`}
+          summary={`The current environment is classified as: ${soundCategory}. Students can compare sound levels from different activities and locations.`}
+        />
+      )}
+
+      <View style={styles.infoBox}>
+        <Text style={styles.infoTitle}>STEMM Learning Link</Text>
+        <Text style={styles.infoText}>
+          This feature supports environmental science by helping students
+          measure classroom noise, compare sound levels, and understand how
+          prolonged loud sounds may affect concentration and hearing health.
+        </Text>
+      </View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
   title: {
-    textAlign: 'center',
+    fontSize: 32,
+    fontWeight: "800",
+    marginTop: 20,
+    textAlign: "center",
   },
-  code: {
-    textTransform: 'uppercase',
+  subtitle: {
+    fontSize: 16,
+    color: "#6B7280",
+    textAlign: "center",
+    marginTop: 8,
+    marginBottom: 22,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  meterCard: {
+    backgroundColor: "white",
+    borderRadius: 22,
+    padding: 20,
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 16,
+    color: "#6B7280",
+    fontWeight: "700",
+  },
+  dbText: {
+    fontSize: 46,
+    fontWeight: "900",
+    marginVertical: 12,
+  },
+  meterBackground: {
+    height: 18,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  meterFill: {
+    height: "100%",
+    backgroundColor: "#4F46E5",
+    borderRadius: 12,
+  },
+  category: {
+    marginTop: 12,
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  scoreRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+    marginTop: 12,
+  },
+  button: {
+    marginTop: 14,
+  },
+  infoBox: {
+    marginTop: 22,
+    backgroundColor: "#EAF2FF",
+    borderRadius: 18,
+    padding: 16,
+  },
+  infoTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#4F46E5",
+    marginBottom: 6,
+  },
+  infoText: {
+    fontSize: 14,
+    color: "#111827",
+    lineHeight: 20,
   },
 });
